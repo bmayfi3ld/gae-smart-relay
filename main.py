@@ -1,6 +1,7 @@
+import os
 
 from flask import Flask
-from flask import request,redirect, url_for
+from flask import request, redirect, url_for, render_template
 from google.appengine.ext import ndb
 
 app = Flask(__name__)
@@ -16,15 +17,15 @@ class Test_Entity(ndb.Model):
 @app.route('/')
 def hello():
 	"""Return a friendly HTTP greeting."""
-	return_string = '<b>Hello World!</b>' 
+	the_list = '<b>Hello World!</b>' 
 	tests = Test_Entity.query(ancestor=ndb.Key('Test_Entity', "MasterKey"))
 	
 	for test in tests:
-		return_string += '<p>'
-		return_string += test.property1
-		return_string += '</p>'
-	
-	return return_string
+		the_list += '<p>'
+		the_list += test.property1
+		the_list += '</p>'
+		
+	return render_template('index.html', the_list = the_list)
 
 @app.route('/post')
 def post():
