@@ -13,9 +13,13 @@ app.config['DEBUG'] = True
 class Test_Entity(ndb.Model):
 	property1 = ndb.StringProperty()
 	property2 = ndb.StringProperty()
-
 @app.route('/')
-def hello():
+def reroute():
+	return redirect(url_for('data'))
+
+
+@app.route('/data')
+def data():
 	"""Return a friendly HTTP greeting."""
 	the_list = '<b>Hello World!</b>' 
 	tests = Test_Entity.query(ancestor=ndb.Key('Test_Entity', "MasterKey"))
@@ -35,6 +39,9 @@ def post():
 	new_test_entity.put()
 	return redirect(url_for('hello'))
 	
+@app.route('/control')
+def control():
+	return 'This page is not done yet'
 	
 @app.errorhandler(404)
 def page_not_found(e):
