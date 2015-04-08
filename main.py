@@ -14,9 +14,9 @@ app.config['DEBUG'] = True
 # Note: We don't need to call run() since our application is embedded within
 # the App Engine WSGI application server.
 
-class Test_Entity(ndb.Model):
-	property1 = ndb.StringProperty()
-	property2 = ndb.StringProperty()
+class BB_Status(ndb.Model):
+	state = ndb.BooleanProperty()
+	command = ndb.BooleanProperty()
 	
 class Log(ndb.Model):
 	timestamp = ndb.DateTimeProperty()
@@ -46,8 +46,16 @@ def data():
 
 @app.route('/post')
 def post():
+
+	# create entities
 	new_log = Log(parent=ndb.Key('Log', "Beaglebone1"))
-	# try:
+	status_key = ndb.Key(BB_Status, 'Beaglebone1')
+	status = status_key.get()
+	
+	if not status:
+		status = BB_Status(key=status_key)
+	
+	# fill data
 	string_time = request.args.get('timestamp')
 	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time))
 	new_log.temperature = float(request.args.get('temperature'))
@@ -57,10 +65,16 @@ def post():
 	new_log.voltage = request.args.get('voltage')
 	new_log.frequency = request.args.get('frequency')
 	password = request.args.get('password')
-	# except:
-		# return 'failure'
+	
+	if request.args.get('state') == 'True':
+		status.state = True
+	else:
+		status.state = False
+		
+	# save data
 	if password == 'my_password':
 		new_log.put()
+		status.put()
 		return 'success'
 	else:
 		return 'failure'
@@ -69,12 +83,13 @@ def post():
 def control():
 	user = users.get_current_user()
 	
-	if user:
-		name = user.nickname()
-	else:
+	if not user:
 		return redirect(users.create_login_url())
-		
-	return render_template('control.html', user = name)
+
+	status_key = ndb.Key(BB_Status, 'Beaglebone1')
+	status = status_key.get()
+	
+	return render_template('control.html', state = status.state)
 	
 @app.errorhandler(404)
 def page_not_found(e):
