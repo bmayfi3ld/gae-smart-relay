@@ -41,7 +41,6 @@ function drawChart(arrayIN) {
 			//width: 100,
 			//width: document.getElementById('chart' + i).offsetWidth,
 			height: 350,
-			curveType: 'function',
 			legend: {position: 'none'},                    
 		}
 		var chart = new google.charts.Line(document.getElementById('chart' + i));

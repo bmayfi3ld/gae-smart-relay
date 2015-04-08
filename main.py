@@ -17,7 +17,7 @@ class Test_Entity(ndb.Model):
 	property2 = ndb.StringProperty()
 	
 class Log(ndb.Model):
-	timestamp = ndb.StringProperty()
+	timestamp = ndb.DateTimeProperty()
 	temperature = ndb.FloatProperty()
 	current = ndb.FloatProperty()
 	humidity = ndb.FloatProperty()
@@ -32,12 +32,12 @@ def reroute():
 
 @app.route('/data')
 def data():
-	logs = Log.query(ancestor=ndb.Key('Log', "Beaglebone1"))
+	logs = Log.query(ancestor=ndb.Key('Log', "Beaglebone1")).order(Log.timestamp)
 	
 	data_table = [['Time','Temperature','Humidity']]
 	
 	for log in logs:
-		data_table.append([json.dumps(log.timestamp), log.temperature, log.humidity])
+		data_table.append([log.timestamp.ctime(), log.temperature, log.humidity])
 
 		
 	return render_template('index.html', data_table = data_table)
@@ -45,9 +45,9 @@ def data():
 @app.route('/post')
 def post():
 	new_log = Log(parent=ndb.Key('Log', "Beaglebone1"))
-	
-	string_time = request.args.get('timestamp')[1:19]
-	new_log.timestamp = datetime.datetime.strptime(string_time, '"%b/%d/%Y %H:%M:%S"')
+	# try:
+	string_time = request.args.get('timestamp')
+	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time))
 	new_log.temperature = float(request.args.get('temperature'))
 	new_log.current = request.args.get('current')
 	new_log.humidity = float(request.args.get('humidity'))
@@ -55,7 +55,8 @@ def post():
 	new_log.voltage = request.args.get('voltage')
 	new_log.frequency = request.args.get('frequency')
 	password = request.args.get('password')
-	
+	# except:
+		# return 'failure'
 	if password == 'my_password':
 		new_log.put()
 		return 'success'
