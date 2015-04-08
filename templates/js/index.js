@@ -9,10 +9,17 @@ function drawChart(arrayIN) {
 	{
 		dataArr[i] = new google.visualization.DataTable();
 	}
+	
+	// convert back to date
+	for(var i = 1; i < arrayIN.length; i++) 
+	{
+		arrayIN[i][0] = new Date(arrayIN[i][0])       
+	}
 
 	// add date to all graphs
-	for(var i = 0; i < arrayIN[0].length-1; i++) {
-		dataArr[i].addColumn('number', 'Time');
+	for(var i = 0; i < arrayIN[0].length-1; i++) 
+	{
+		dataArr[i].addColumn('datetime', 'Time');
 	}
 
 	// create individual graph legends and add data
@@ -31,9 +38,9 @@ function drawChart(arrayIN) {
 			chart: {
 				 title: arrayIN[0][i+1]
 			},      
-			width: 100,
+			//width: 100,
 			//width: document.getElementById('chart' + i).offsetWidth,
-			height: 500,
+			height: 350,
 			curveType: 'function',
 			legend: {position: 'none'},                    
 		}
