@@ -5,6 +5,8 @@ import datetime
 from flask import Flask
 from flask import request, redirect, url_for, render_template
 from google.appengine.ext import ndb
+from google.appengine.api import users
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -65,7 +67,14 @@ def post():
 	
 @app.route('/control')
 def control():
-	return 'This page is not done yet'
+	user = users.get_current_user()
+	
+	if user:
+		name = user.nickname()
+	else:
+		return redirect(users.create_login_url())
+		
+	return render_template('control.html', user = name)
 	
 @app.errorhandler(404)
 def page_not_found(e):

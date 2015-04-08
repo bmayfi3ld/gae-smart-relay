@@ -14,6 +14,8 @@ handlers:
   static_dir: templates/css
 - url: /js
   static_dir: templates/js
+- url: /control
+	login: required
 - url: .*
   script: main.app
   secure: always
