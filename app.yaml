@@ -7,13 +7,16 @@ threadsafe: yes
 handlers:
 - url: /favicon\.ico
   static_files: images/favicon.ico
-  upload: favicon\.ico  
+  upload: images/favicon.ico
 - url: /bootstrap
   static_dir: lib/bootstrap-3.3.4-dist
 - url: /css
   static_dir: templates/css
+- url: /js
+  static_dir: templates/js
 - url: .*
   script: main.app
+  secure: always
 
 libraries:
 - name: jinja2
