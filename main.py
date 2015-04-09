@@ -7,6 +7,7 @@ from flask import Flask
 from flask import request, redirect, url_for, render_template
 from google.appengine.ext import ndb
 from google.appengine.api import users
+from google.appengine.api import mail
 
 
 app = Flask(__name__)
@@ -18,7 +19,25 @@ app.config['DEBUG'] = True
 class BB_Status(ndb.Model):
 	state = ndb.BooleanProperty(default=False)
 	command = ndb.BooleanProperty(default=False)
+	last_mail = ndb.DateTimeProperty()
+    
+    
+	#temperature = ndb.FloatProperty(repeated=True, default=[0,500])
+	#current = ndb.FloatProperty(repeated=True, default=[0,500])
+	#humidity = ndb.FloatProperty(repeated=True, default=[0,500])
+	#battery_voltage = ndb.FloatProperty(repeated=True, default=[0,500])
+	#voltage = ndb.FloatProperty(repeated=True, default=[0,500])
+	#frequency = ndb.FloatProperty(repeated=True, default=[0,500])
+
+def get_status():
+	status_key = ndb.Key(BB_Status, 'Beaglebone1')
+	status = status_key.get()
 	
+	if not status:
+		status = BB_Status(key=status_key)
+		status.put()
+	return status
+
 class Log(ndb.Model):
 	timestamp = ndb.DateTimeProperty('tm', indexed=True)
 	temperature = ndb.FloatProperty('t', indexed=False)
@@ -37,10 +56,10 @@ def reroute():
 def data():
 	logs = Log.query().order(Log.timestamp)
 	
-	data_table = [['Time','Temperature','Humidity']]
+	data_table = [['Time','Temperature','Humidity','Voltage','Current','Battery Voltage','Frequency']]
 	
 	for log in logs:
-		data_table.append([log.timestamp.ctime(), log.temperature, log.humidity])
+		data_table.append([log.timestamp.ctime(), log.temperature, log.humidity, log.voltage, log.current, log.battery_voltage, log.frequency])
 
 		
 	return render_template('index.html', data_table = data_table)
@@ -61,11 +80,11 @@ def post():
 	string_time = request.args.get('timestamp')
 	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time))
 	new_log.temperature = float(request.args.get('temperature'))
-	new_log.current = request.args.get('current')
+	new_log.current = float(request.args.get('current'))
 	new_log.humidity = float(request.args.get('humidity'))
-	new_log.battery_voltage = request.args.get('battery_voltage')
-	new_log.voltage = request.args.get('voltage')
-	new_log.frequency = request.args.get('frequency')
+	new_log.battery_voltage = float(request.args.get('battery_voltage'))
+	new_log.voltage = float(request.args.get('voltage'))
+	new_log.frequency = float(request.args.get('frequency'))
 	password = request.args.get('password')
 	
 	if request.args.get('state') == 'True':
@@ -77,8 +96,16 @@ def post():
 	if password == 'my_password':
 		new_log.put()
 		status.put()
+        send_mail('test', 50)
 	return str(status.command)
-	
+
+def send_mail(value, variable):
+    #check if one has already been sent today
+    
+    sender_address = 'Smart Relay <smart-relay@appspot.gserviceaccount.com>'
+    subject = 'Value {} has gone out of range at {}'.format(value,variable)
+    
+    mail.send_mail(sender_address, 'supernova2468@gmail.com', subject, ' ')
 	
 @app.route('/control')
 def control():
@@ -149,7 +176,11 @@ def csv():
 		out_log += format_string.format(log.timestamp, log.temperature, log.humidity, log.current, log.voltage, log.battery_voltage, log.frequency)
 
 	return str(out_log)
-	
+
+@app.route('/setup')
+def thresh_setup():
+    return 'not done yet'
+
 @app.errorhandler(404)
 def page_not_found(e):
     return 'Sorry, nothing at this URL.', 404
