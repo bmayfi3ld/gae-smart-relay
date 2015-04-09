@@ -20,13 +20,13 @@ class BB_Status(ndb.Model):
 	command = ndb.BooleanProperty(default=False)
 	
 class Log(ndb.Model):
-	timestamp = ndb.DateTimeProperty()
-	temperature = ndb.FloatProperty()
-	current = ndb.FloatProperty()
-	humidity = ndb.FloatProperty()
-	battery_voltage = ndb.FloatProperty()
-	voltage = ndb.FloatProperty()
-	frequency = ndb.FloatProperty()
+	timestamp = ndb.DateTimeProperty('tm', indexed=True)
+	temperature = ndb.FloatProperty('t', indexed=False)
+	current = ndb.FloatProperty('c', indexed=False)
+	humidity = ndb.FloatProperty('h', indexed=False)
+	battery_voltage = ndb.FloatProperty('b', indexed=False)
+	voltage = ndb.FloatProperty('v', indexed=False)
+	frequency = ndb.FloatProperty('f', indexed=False)
 	
 	
 @app.route('/')
@@ -103,8 +103,8 @@ def control():
 	#calculate last 24h on 1 min posting
 	time = datetime.datetime.now() - datetime.timedelta(days=1)
 	
-	query = Log.query(Log.timestamp > time)
-	query.order(Log.timestamp)
+	query = Log.query(Log.timestamp > time).order(-Log.timestamp)
+	
 	
 	uptime = query.count()
 	uptime = (uptime * 100) / 1440

@@ -59,7 +59,7 @@
 					<div class="well">
 						<h4>Last Known State</h4>
 						<h3 class="labels">{{ state|safe }}</h3>
-						<p>Updated: {{ last_update|safe }}<p>
+						<p>Last Updated: {{ last_update|safe }}<p>
 					</div>
 				</div>
 				<div class="col-md-4">
@@ -72,7 +72,9 @@
 				</div>
 				<div class="col-md-4">
 					<div class="well">
+						<h4>Current Signal</h4>
 						<h3 class="labels"><a href="/control2"{{ button|safe }}</a></h3>
+						<p>The command that this app is currently sending to the device. Click to change.</p>
 					</div>
 				</div>
 			</div>
@@ -80,7 +82,6 @@
 
 
     </div><!-- /.container -->
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
