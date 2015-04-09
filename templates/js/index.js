@@ -1,4 +1,5 @@
 google.load('visualization', '1.1', {packages: ['line']});
+google.load("visualization", "1", {packages:["gauge"]});
 
 
 function drawChart(arrayIN) {
@@ -48,4 +49,21 @@ function drawChart(arrayIN) {
 	}
 }
 	
+function drawGauge(uptime) {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['', uptime],
+        ]);
+
+        var options = {
+          redFrom: 0, redTo: 10,
+          yellowFrom:10, yellowTo: 25,
+          minorTicks: 5
+        };
+
+        var chart = new google.visualization.Gauge(document.getElementById('gauge'));
+
+        chart.draw(data, options);
+      }
 	

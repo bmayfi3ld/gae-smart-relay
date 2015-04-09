@@ -47,10 +47,34 @@
 
       <div class="starter-template">
         <h1>Send Commands to the Beaglebone</h1>
-				
-				{{ state|safe }}
-
+				<p>Here you can see if the outlet is currently being powered, 
+						what the connection uptime of the device is, 
+						and you can also send a command to the device
+				</p>
       </div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="well">
+						<h3 class="labels">{{ state|safe }}</h3>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="well">
+					<h4>Up Time Last 24H (%)</h4>
+						<div id="gauge_div">								
+							<div id="gauge"></div>
+						</div>
+					</div>				
+				</div>
+				<div class="col-md-4">
+					<div class="well">
+						<h3 class="labels"><a href="/control2"{{ button|safe }}</a></h3>
+					</div>
+				</div>
+			</div>
+		</div>
+
 
     </div><!-- /.container -->
 
@@ -60,5 +84,11 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script src="js/index.js"></script>
+		<script type="text/javascript">
+			google.setOnLoadCallback(drawGauge({{ uptime|safe }}));
+		</script>
+
   </body>
 </html>

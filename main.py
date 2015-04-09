@@ -17,6 +17,7 @@ app.config['DEBUG'] = True
 class BB_Status(ndb.Model):
 	state = ndb.BooleanProperty()
 	command = ndb.BooleanProperty()
+	uptime = ndb.IntegerProperty()
 	
 class Log(ndb.Model):
 	timestamp = ndb.DateTimeProperty()
@@ -75,9 +76,8 @@ def post():
 	if password == 'my_password':
 		new_log.put()
 		status.put()
-		return 'success'
-	else:
-		return 'failure'
+	return str(status.command)
+	
 	
 @app.route('/control')
 def control():
@@ -86,10 +86,44 @@ def control():
 	if not user:
 		return redirect(users.create_login_url())
 
+	
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
 	
-	return render_template('control.html', state = status.state)
+	if status.state:
+		output = '<span class="label label-success">Outlet Powered On</span>' 
+	else:
+		output = '<span class="label label-danger">Outlet Powered Off</span>'
+		
+		
+	#calculate last 24h on 1 min posting
+	time = datetime.datetime.now() - datetime.timedelta(days=1)
+	
+	query = Log.query(Log.timestamp > time)
+	query.order(Log.timestamp)
+	
+	uptime = query.count()
+	uptime = (uptime * 100) / 1440
+	
+	if status.command:
+		button = 'class="label label-success">Startup Requested'
+	else:
+		button = 'class="label label-danger">Shutdown Requested'
+	
+	return render_template('control.html', state = output, uptime = uptime, button = button)
+
+@app.route('/control2')
+def control2():
+	status_key = ndb.Key(BB_Status, 'Beaglebone1')
+	status = status_key.get()
+	
+	if status.command:
+		status.command = False
+	else:
+		status.command = True
+		
+	status.put()
+	return redirect(url_for('control'))
 	
 @app.errorhandler(404)
 def page_not_found(e):

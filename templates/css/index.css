@@ -5,3 +5,17 @@ body {
   padding: 40px 15px;
   text-align: center;
 }
+#gauge_div {
+	margin-left: auto;
+	margin-right: auto;
+	width: 50%;
+}
+.well {
+	height: 250px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.labels {
+	padding-top: 10%;
+}
