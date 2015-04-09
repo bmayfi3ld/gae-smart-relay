@@ -38,6 +38,7 @@
           <ul class="nav navbar-nav">
             <li><a href="/data">Data</a></li>
             <li class="active"><a href="#">Control</a></li>
+						<li><a href="/csv">CSV Dump</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -56,12 +57,14 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div class="well">
+						<h4>Last Known State</h4>
 						<h3 class="labels">{{ state|safe }}</h3>
+						<p>Updated: {{ last_update|safe }}<p>
 					</div>
 				</div>
 				<div class="col-md-4">
 					<div class="well">
-					<h4>Up Time Last 24H (%)</h4>
+					<h4>Uptime Last 24H (%)</h4>
 						<div id="gauge_div">								
 							<div id="gauge"></div>
 						</div>

@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import csv
 
 from flask import Flask
 from flask import request, redirect, url_for, render_template
@@ -15,9 +16,8 @@ app.config['DEBUG'] = True
 # the App Engine WSGI application server.
 
 class BB_Status(ndb.Model):
-	state = ndb.BooleanProperty()
-	command = ndb.BooleanProperty()
-	uptime = ndb.IntegerProperty()
+	state = ndb.BooleanProperty(default=False)
+	command = ndb.BooleanProperty(default=False)
 	
 class Log(ndb.Model):
 	timestamp = ndb.DateTimeProperty()
@@ -35,7 +35,7 @@ def reroute():
 
 @app.route('/data')
 def data():
-	logs = Log.query(ancestor=ndb.Key('Log', "Beaglebone1")).order(Log.timestamp)
+	logs = Log.query().order(Log.timestamp)
 	
 	data_table = [['Time','Temperature','Humidity']]
 	
@@ -49,12 +49,13 @@ def data():
 def post():
 
 	# create entities
-	new_log = Log(parent=ndb.Key('Log', "Beaglebone1"))
+	new_log = Log()
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
 	
 	if not status:
 		status = BB_Status(key=status_key)
+		status.put()
 	
 	# fill data
 	string_time = request.args.get('timestamp')
@@ -89,6 +90,9 @@ def control():
 	
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
+	if not status:
+		status = BB_Status(key=status_key)
+		status.put()
 	
 	if status.state:
 		output = '<span class="label label-success">Outlet Powered On</span>' 
@@ -104,13 +108,17 @@ def control():
 	
 	uptime = query.count()
 	uptime = (uptime * 100) / 1440
+	try:
+		last_update = query.fetch(1)[0].timestamp
+	except IndexError:
+		last_update = 0
 	
 	if status.command:
 		button = 'class="label label-success">Startup Requested'
 	else:
 		button = 'class="label label-danger">Shutdown Requested'
 	
-	return render_template('control.html', state = output, uptime = uptime, button = button)
+	return render_template('control.html', state = output, uptime = uptime, button = button, last_update = last_update)
 
 @app.route('/control2')
 def control2():
@@ -124,6 +132,18 @@ def control2():
 		
 	status.put()
 	return redirect(url_for('control'))
+	
+@app.route('/csv')
+def csv():
+	query = Log.query()
+	query.order(Log.timestamp)
+	
+	out_log = "Timestamp,Temperature,Humidity,Current,Voltage,Battery Voltage,Frequency<br>"
+	format_string = '{},{},{},{},{},{},{}<br>'
+	for log in query:
+		out_log += format_string.format(log.timestamp, log.temperature, log.humidity, log.current, log.voltage, log.battery_voltage, log.frequency)
+
+	return str(out_log)
 	
 @app.errorhandler(404)
 def page_not_found(e):
