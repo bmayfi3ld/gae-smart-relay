@@ -17,6 +17,9 @@ handlers:
 - url: /control
   script: main.app
   login: required
+- url: /control2
+  script: main.app
+  login: required
 - url: /.*
   script: main.app
   secure: always

@@ -122,6 +122,11 @@ def control():
 
 @app.route('/control2')
 def control2():
+	user = users.get_current_user()
+	
+	if not user:
+		return redirect(users.create_login_url())
+
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
 	
