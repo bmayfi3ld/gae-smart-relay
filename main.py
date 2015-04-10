@@ -179,7 +179,7 @@ def csv():
 
 @app.route('/setup')
 def thresh_setup():
-    return 'not done yet'
+    return render_template('setup.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
