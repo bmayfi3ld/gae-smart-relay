@@ -66,6 +66,8 @@ class Log(ndb.Model):
 	voltage = ndb.FloatProperty('v', indexed=False)
 	frequency = ndb.FloatProperty('f', indexed=False)
 	
+	unique = ndb.BooleanProperty('u', indexed=True, default=True)
+	
 	
 @app.route('/')
 def reroute():
@@ -73,7 +75,7 @@ def reroute():
 
 @app.route('/data')
 def data():
-	logs = Log.query().order(Log.timestamp)
+	logs = Log.query(Log.unique == True).order(Log.timestamp)
 	
 	data_table = [['Time','Temperature','Humidity','Voltage','Current','Battery Voltage','Frequency']]
 	
@@ -153,7 +155,8 @@ def send_mail(value, variable):
 	sender_address = 'Smart Relay <smart-relay@appspot.gserviceaccount.com>'
 	subject = 'Variable {} has gone out of range at {}'.format(variable,value)
     
-	mail.send_mail(sender_address, 'supernova2468@gmail.com', subject, ' ')
+	for user in registered_users:
+		mail.send_mail(sender_address, user, subject, ' ')
 	email_settings.last_mail = datetime.date.today()
 	email_settings.put()
 	
@@ -244,7 +247,7 @@ def thresh_setup():
 				current_l = email_settings.current_l, current_h = email_settings.current_h,
 				battery_voltage_l = email_settings.battery_voltage_l, battery_voltage_h = email_settings.battery_voltage_h,
 				frequency_l = email_settings.frequency_l, frequency_h = email_settings.frequency_h)
-				
+
 @app.route('/setup2', methods=['POST'])
 def thresh_post():
 	code = check_auth()	
@@ -324,7 +327,43 @@ def check_auth():
 		return 2
 		
 	return 0
+
+@app.route('/cron')
+def cron():
+	query = Log.query().order(Log.timestamp)
 	
+
+	for log in query:
+		try:
+			if not last_log:
+				last_log = log
+		except UnboundLocalError:
+			last_log = log
+			break
+		
+		if abs(log.temperature - last_log.temperature) > .5:
+			log.unique = True
+			last_log = log
+		# elif abs(log.current - last_log.current) > .5:
+			# log.unique = True
+			# last_log = log
+		# elif abs(log.humidity - last_log.humidity) > .5:
+			# log.unique = True
+			# last_log = log
+		# elif abs(log.battery_voltage - last_log.battery_voltage) > .5:
+			# log.unique = True
+			# last_log = log
+		# elif abs(log.voltage - last_log.voltage) > .5:
+			# log.unique = True
+			# last_log = log
+		# elif abs(log.frequency - last_log.frequency) > .5:
+			# log.unique = True
+			# last_log = log
+		else:
+			log.unique = False
+
+	return '',200
+
 @app.errorhandler(404)
 def page_not_found(e):
     return 'Sorry, nothing at this URL.', 404

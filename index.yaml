@@ -11,6 +11,11 @@ indexes:
 # your application using appcfg.py.
 
 - kind: Log
+  properties:
+  - name: u
+  - name: tm
+
+- kind: Log
   ancestor: yes
   properties:
   - name: timestamp

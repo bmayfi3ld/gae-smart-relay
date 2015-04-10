@@ -14,6 +14,9 @@ handlers:
   static_dir: templates/css
 - url: /js
   static_dir: templates/js
+- url: /cron
+  script: main.app
+  login: admin
 - url: /.*
   script: main.app
   secure: always

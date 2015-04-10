@@ -1,0 +1,4 @@
+cron:
+- description: clean data to make front page display faster
+  url: /cron
+  schedule: every 24 hours
