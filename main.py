@@ -96,7 +96,7 @@ def post():
 	if password == 'my_password':
 		new_log.put()
 		status.put()
-        send_mail('test', 50)
+    # send_mail('test', 50)
 	return str(status.command)
 
 def send_mail(value, variable):
