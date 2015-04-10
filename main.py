@@ -13,7 +13,7 @@ from google.appengine.api import mail
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-registered_users = ['supernova2468@gmail.com']
+registered_users = ['supernova2468@gmail.com', 'callahanjake1986@gmail.com', 'mattritzj@gmail.com']
 
 # Note: We don't need to call run() since our application is embedded within
 # the App Engine WSGI application server.
@@ -159,10 +159,11 @@ def send_mail(value, variable):
 	
 @app.route('/control')
 def control():
-	user = users.get_current_user()
-	
-	if not user:
-		return redirect(users.create_login_url())
+	code = check_auth()	
+	if code == 1:
+		return redirect(users.create_login_url('/control'))
+	if code == 2:
+		return render_template('badlogin.html', url = users.create_logout_url('/control'))
 	
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
@@ -198,10 +199,11 @@ def control():
 
 @app.route('/control2')
 def control2():
-	user = users.get_current_user()
-	
-	if not user:
-		return redirect(users.create_login_url())
+	code = check_auth()	
+	if code == 1:
+		return redirect(users.create_login_url('/control'))
+	if code == 2:
+		return render_template('badlogin.html', url = users.create_logout_url('/control'))
 
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
@@ -228,6 +230,11 @@ def csv():
 
 @app.route('/setup')
 def thresh_setup():
+	code = check_auth()	
+	if code == 1:
+		return redirect(users.create_login_url('/setup'))
+	if code == 2:
+		return render_template('badlogin.html', url = users.create_logout_url('/setup'))
 	email_settings = get_email()
 	
 	return render_template('setup.html', 
@@ -240,6 +247,13 @@ def thresh_setup():
 				
 @app.route('/setup2', methods=['POST'])
 def thresh_post():
+	code = check_auth()	
+	if code == 1:
+		return redirect(users.create_login_url('/setup'))
+	if code == 2:
+		return render_template('badlogin.html', url = users.create_logout_url('/setup'))
+	email_settings = get_email()
+
 	email_settings = get_email()
 	
 	try:
@@ -304,10 +318,12 @@ def check_auth():
 	user = users.get_current_user()
 	
 	if not user:
-		return redirect(users.create_login_url())
+		return 1		
 	
-	if not user.email() in registered_users:
-		return render_template('badlogin.html')
+	if user.email() not in registered_users:
+		return 2
+		
+	return 0
 	
 @app.errorhandler(404)
 def page_not_found(e):
