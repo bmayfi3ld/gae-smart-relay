@@ -19,3 +19,12 @@ body {
 .labels {
 	padding-top: 10%;
 }
+
+.form-inline {
+	padding-bottom: 10px;
+}
+
+form {
+	text-align: right;
+	padding-right: 25%;
+}

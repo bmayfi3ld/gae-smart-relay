@@ -13,22 +13,15 @@ from google.appengine.api import mail
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
+registered_users = ['supernova2468@gmail.com']
+
 # Note: We don't need to call run() since our application is embedded within
 # the App Engine WSGI application server.
 
 class BB_Status(ndb.Model):
 	state = ndb.BooleanProperty(default=False)
 	command = ndb.BooleanProperty(default=False)
-	last_mail = ndb.DateTimeProperty()
-    
-    
-	#temperature = ndb.FloatProperty(repeated=True, default=[0,500])
-	#current = ndb.FloatProperty(repeated=True, default=[0,500])
-	#humidity = ndb.FloatProperty(repeated=True, default=[0,500])
-	#battery_voltage = ndb.FloatProperty(repeated=True, default=[0,500])
-	#voltage = ndb.FloatProperty(repeated=True, default=[0,500])
-	#frequency = ndb.FloatProperty(repeated=True, default=[0,500])
-
+	
 def get_status():
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
@@ -37,7 +30,33 @@ def get_status():
 		status = BB_Status(key=status_key)
 		status.put()
 	return status
+	
+class Email_Settings(ndb.Model):
+	last_mail = ndb.DateProperty(default=(datetime.date.today()-datetime.timedelta(days=1)))
 
+	temperature_l = ndb.IntegerProperty(default=0)
+	current_l = ndb.IntegerProperty(default=0)
+	humidity_l = ndb.IntegerProperty(default=0)
+	battery_voltage_l = ndb.IntegerProperty(default=0)
+	voltage_l = ndb.IntegerProperty(default=0)
+	frequency_l = ndb.IntegerProperty(default=0)
+	
+	temperature_h = ndb.IntegerProperty(default=500)
+	current_h = ndb.IntegerProperty(default=500)
+	humidity_h = ndb.IntegerProperty(default=500)
+	battery_voltage_h = ndb.IntegerProperty(default=500)
+	voltage_h = ndb.IntegerProperty(default=500)
+	frequency_h = ndb.IntegerProperty(default=500)
+
+def get_email():
+	email_key = ndb.Key(Email_Settings, 'Beaglebone1')
+	email = email_key.get()
+	
+	if not email:
+		email = Email_Settings(key=email_key)
+		email.put()
+	return email
+	
 class Log(ndb.Model):
 	timestamp = ndb.DateTimeProperty('tm', indexed=True)
 	temperature = ndb.FloatProperty('t', indexed=False)
@@ -96,16 +115,47 @@ def post():
 	if password == 'my_password':
 		new_log.put()
 		status.put()
-    # send_mail('test', 50)
+		check = log_check(new_log)
+		if check['check']:
+			send_mail(check['value'], check['variable'])
 	return str(status.command)
 
+def log_check(log):
+	es = get_email()
+	
+	v = log.voltage
+	if v > es.voltage_h or v < es.voltage_l:
+		return {'check': True, 'value': v, 'variable': 'voltage'}
+	v = log.temperature
+	if v > es.temperature_h or v < es.temperature_l:
+		return {'check': True, 'value': v, 'variable': 'temperature'}
+	v = log.humidity
+	if v > es.humidity_h or v < es.humidity_l:
+		return {'check': True, 'value': v, 'variable': 'humidity'}
+	v = log.current
+	if v > es.current_h or v < es.current_l:
+		return {'check': True, 'value': v, 'variable': 'current'}
+	v = log.battery_voltage
+	if v > es.battery_voltage_h or v < es.battery_voltage_l:
+		return {'check': True, 'value': v, 'variable': 'battery_voltage'}
+	v = log.frequency
+	if v > es.frequency_h or v < es.frequency_l:
+		return {'check': True, 'value': v, 'variable': 'frequency'}		
+				
+	return {'check': False, 'value': 0, 'variable': '0'}
+	
 def send_mail(value, variable):
-    #check if one has already been sent today
+	#check if one has already been sent today
+	email_settings = get_email()
+	if email_settings.last_mail == datetime.date.today():
+		return
+		
+	sender_address = 'Smart Relay <smart-relay@appspot.gserviceaccount.com>'
+	subject = 'Variable {} has gone out of range at {}'.format(variable,value)
     
-    sender_address = 'Smart Relay <smart-relay@appspot.gserviceaccount.com>'
-    subject = 'Value {} has gone out of range at {}'.format(value,variable)
-    
-    mail.send_mail(sender_address, 'supernova2468@gmail.com', subject, ' ')
+	mail.send_mail(sender_address, 'supernova2468@gmail.com', subject, ' ')
+	email_settings.last_mail = datetime.date.today()
+	email_settings.put()
 	
 @app.route('/control')
 def control():
@@ -113,7 +163,6 @@ def control():
 	
 	if not user:
 		return redirect(users.create_login_url())
-
 	
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
 	status = status_key.get()
@@ -179,8 +228,87 @@ def csv():
 
 @app.route('/setup')
 def thresh_setup():
-    return render_template('setup.html')
+	email_settings = get_email()
+	
+	return render_template('setup.html', 
+				voltage_l = email_settings.voltage_l, voltage_h = email_settings.voltage_h,
+				humidity_l = email_settings.humidity_l, humidity_h = email_settings.humidity_h,
+				temperature_l = email_settings.temperature_l, temperature_h = email_settings.temperature_h,
+				current_l = email_settings.current_l, current_h = email_settings.current_h,
+				battery_voltage_l = email_settings.battery_voltage_l, battery_voltage_h = email_settings.battery_voltage_h,
+				frequency_l = email_settings.frequency_l, frequency_h = email_settings.frequency_h)
+				
+@app.route('/setup2', methods=['POST'])
+def thresh_post():
+	email_settings = get_email()
+	
+	try:
+		email_settings.voltage_l = int(request.form['voltage_l'])
+	except ValueError:
+		pass
+	try:
+		email_settings.voltage_h = int(request.form['voltage_h'])
+	except ValueError:
+		pass
+		
+	try:
+		email_settings.temperature_l = int(request.form['temperature_l'])
+	except ValueError:
+		pass
+	try:
+		email_settings.temperature_h = int(request.form['temperature_h'])
+	except ValueError:
+		pass
 
+	try:
+		email_settings.humidity_l = int(request.form['humidity_l'])
+	except ValueError:
+		pass
+	try:
+		email_settings.humidity_h = int(request.form['humidity_h'])
+	except ValueError:
+		pass
+
+	try:
+		email_settings.current_l = int(request.form['current_l'])
+	except ValueError:
+		pass
+	try:
+		email_settings.current_h = int(request.form['current_h'])
+	except ValueError:
+		pass
+
+	try:
+		email_settings.battery_voltage_l = int(request.form['battery_voltage_l'])
+	except ValueError:
+		pass
+	try:
+		email_settings.battery_voltage_h = int(request.form['battery_voltage_h'])
+	except ValueError:
+		pass
+
+	try:
+		email_settings.frequency_l = int(request.form['frequency_l'])
+	except ValueError:
+		pass
+	try:
+		email_settings.frequency_h = int(request.form['frequency_h'])
+	except ValueError:
+		pass		
+	
+	email_settings.put()
+	
+	return redirect(url_for('thresh_setup'))
+	
+def check_auth():
+	user = users.get_current_user()
+	
+	if not user:
+		return redirect(users.create_login_url())
+	
+	if not user.email() in registered_users:
+		return render_template('badlogin.html')
+	
 @app.errorhandler(404)
 def page_not_found(e):
     return 'Sorry, nothing at this URL.', 404

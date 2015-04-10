@@ -7,7 +7,7 @@
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
 	<link rel="icon" href="favicon.ico">
-	<title>Starter Template for Bootstrap</title>
+	<title>Relay Alert</title>
 	
 	<!-- Bootstrap core CSS -->
   <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -32,7 +32,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Smart Relay</a>
+          <a class="navbar-brand" href="/data">Smart Relay</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -48,10 +48,79 @@
     <div class="container">
 
       <div class="starter-template">
-        <h1>Bootstrap starter template</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
-				{{ the_list|safe }}
+        <h1>Email Alert Settings</h1>
+        <p>Adjust values for when you will receive an email alert.<br>First box is lower threshold second box is upper.</p>
       </div>
+			
+			<form method="post" action="/setup2">
+				<div class="form-inline">
+					<div class="form-group">
+						<label for="voltage_l">Voltage: </label>
+						<input type="number" class="form-control" name="voltage_l" placeholder={{ voltage_l }}>
+					</div>
+					<div class="form-group">
+						<label for="voltage_h" class="sr-only">Voltage Upper</label>
+						<input type="number" class="form-control" name="voltage_h" placeholder={{ voltage_h }}>
+					</div>
+				</div>
+				
+				<div class="form-inline">
+					<div class="form-group">
+						<label for="temperature_l">Temperature: </label>
+						<input type="number" class="form-control" name="temperature_l" placeholder={{ temperature_l }}>
+					</div>
+					<div class="form-group">
+						<label for="temperature_h" class="sr-only">Temperature Upper</label>
+						<input type="number" class="form-control" name="temperature_h" placeholder={{ temperature_h }}>
+					</div>
+				</div>				
+				
+				<div class="form-inline">
+					<div class="form-group">
+						<label for="humidity_l">Humidity: </label>
+						<input type="number" class="form-control" name="humidity_l" placeholder={{ humidity_l }}>
+					</div>
+					<div class="form-group">
+						<label for="humidity_h" class="sr-only">Humidity Upper</label>
+						<input type="number" class="form-control" name="humidity_h" placeholder={{ humidity_h }}>
+					</div>
+				</div>
+				
+				<div class="form-inline">
+					<div class="form-group">
+						<label for="current_l">Current: </label>
+						<input type="number" class="form-control" name="current_l" placeholder={{ current_l }}>
+					</div>
+					<div class="form-group">
+						<label for="current_h" class="sr-only">Current Upper</label>
+						<input type="number" class="form-control" name="current_h" placeholder={{ current_h }}>
+					</div>
+				</div>
+				
+				<div class="form-inline">
+					<div class="form-group">
+						<label for="battery_voltage_l">Battery Voltage: </label>
+						<input type="number" class="form-control" name="battery_voltage_l" placeholder={{ battery_voltage_l }}>
+					</div>
+					<div class="form-group">
+						<label for="battery_voltage_h" class="sr-only">Battery Voltage Upper</label>
+						<input type="number" class="form-control" name="battery_voltage_h" placeholder={{ battery_voltage_h }}>
+					</div>
+				</div>				
+				
+				<div class="form-inline">
+					<div class="form-group">
+						<label for="frequency_l">Frequency: </label>
+						<input type="number" class="form-control" name="frequency_l" placeholder={{ frequency_l }}>
+					</div>
+					<div class="form-group">
+						<label for="frequency_h" class="sr-only">Frequency Upper</label>
+						<input type="number" class="form-control" name="frequency_h" placeholder={{ frequency_h }}>
+					</div>
+				</div>
+				
+				<button type="submit" class="btn btn-default">Update Settings</button>
+			</form>
 
     </div><!-- /.container -->
 
