@@ -332,37 +332,20 @@ def check_auth():
 def cron():
 	query = Log.query().order(Log.timestamp)
 	
-
+	previous_rank = 0
 	for log in query:
-		try:
-			if not last_log:
-				last_log = log
-		except UnboundLocalError:
-			last_log = log
-			break
-		
-		if abs(log.temperature - last_log.temperature) > .5:
+		current_rank = log.temperature + log.humidity + log.voltage + log.current + log.battery_voltage + log.frequency
+		if abs(current_rank - previous_rank) > 1:
 			log.unique = True
-			last_log = log
-		# elif abs(log.current - last_log.current) > .5:
-			# log.unique = True
-			# last_log = log
-		# elif abs(log.humidity - last_log.humidity) > .5:
-			# log.unique = True
-			# last_log = log
-		# elif abs(log.battery_voltage - last_log.battery_voltage) > .5:
-			# log.unique = True
-			# last_log = log
-		# elif abs(log.voltage - last_log.voltage) > .5:
-			# log.unique = True
-			# last_log = log
-		# elif abs(log.frequency - last_log.frequency) > .5:
-			# log.unique = True
-			# last_log = log
+			log.put()
+			previous_rank = current_rank
 		else:
 			log.unique = False
+			log.put()
 
 	return '',200
+
+	
 
 @app.errorhandler(404)
 def page_not_found(e):
