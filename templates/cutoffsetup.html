@@ -7,7 +7,7 @@
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
 	<link rel="icon" href="favicon.ico">
-	<title>Relay Alert</title>
+	<title>Relay Cut-off</title>
 	
 	<!-- Bootstrap core CSS -->
   <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -39,8 +39,8 @@
             <li><a href="/data">Data</a></li>
             <li><a href="/control">Control</a></li>
 						<li><a href="/csv">CSV Dump</a></li>
-            <li class="active"><a href="/setup">Alert Settings</a></li>
-						<li><a href="/cutoff">Cut-off Settings</a></li>
+            <li><a href="/setup">Alert Settings</a></li>
+						<li class="active"><a href="/cutoff">Cut-off Settings</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -49,11 +49,11 @@
     <div class="container">
 
       <div class="starter-template">
-        <h1>Email Alert Settings</h1>
-        <p>Adjust values for when you will receive an email alert.<br>First box is lower threshold second box is upper.</p>
+        <h1>Beaglebone Cut-off Settings</h1>
+        <p>Adjust values for when the Beaglebone will shut-off the relay (will work off-line).<br>First box is lower threshold second box is upper.</p>
       </div>
 			
-			<form method="post" action="/setup2">
+			<form method="post" action="/cutoffsetup2">
 				<div class="form-inline">
 					<div class="form-group">
 						<label for="voltage_l">Voltage: </label>

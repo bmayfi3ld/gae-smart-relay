@@ -57,6 +57,30 @@ def get_email():
 		email.put()
 	return email
 	
+class Cut_Settings(ndb.Model):
+	temperature_l = ndb.IntegerProperty(default=0)
+	current_l = ndb.IntegerProperty(default=0)
+	humidity_l = ndb.IntegerProperty(default=0)
+	battery_voltage_l = ndb.IntegerProperty(default=0)
+	voltage_l = ndb.IntegerProperty(default=0)
+	frequency_l = ndb.IntegerProperty(default=0)
+	
+	temperature_h = ndb.IntegerProperty(default=500)
+	current_h = ndb.IntegerProperty(default=500)
+	humidity_h = ndb.IntegerProperty(default=500)
+	battery_voltage_h = ndb.IntegerProperty(default=500)
+	voltage_h = ndb.IntegerProperty(default=500)
+	frequency_h = ndb.IntegerProperty(default=500)
+
+def get_cut():
+	cut_key = ndb.Key(Cut_Settings, 'Beaglebone1')
+	cut = cut_key.get()
+	
+	if not cut:
+		cut = Cut_Settings(key=cut_key)
+		cut.put()
+	return cut
+	
 class Log(ndb.Model):
 	timestamp = ndb.DateTimeProperty('tm', indexed=True)
 	temperature = ndb.FloatProperty('t', indexed=False)
@@ -99,7 +123,7 @@ def post():
 	
 	# fill data
 	string_time = request.args.get('timestamp')
-	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time))
+	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time)) - datetime.timedelta(hours=5)
 	new_log.temperature = float(request.args.get('temperature'))
 	new_log.current = float(request.args.get('current'))
 	new_log.humidity = float(request.args.get('humidity'))
@@ -120,7 +144,17 @@ def post():
 		check = log_check(new_log)
 		if check['check']:
 			send_mail(check['value'], check['variable'])
-	return str(status.command)
+
+	cutoff = get_cut()
+	
+	reply_string = '{},{},{},{},{},{},{},{},{},{},{},{},{}'
+	return reply_string.format(status.command,
+							cutoff.battery_voltage_l,cutoff.battery_voltage_h,
+							cutoff.current_l,cutoff.current_h,
+							cutoff.frequency_l,cutoff.frequency_h,
+							cutoff.humidity_l,cutoff.humidity_h,
+							cutoff.temperature_l,cutoff.temperature_h,
+							cutoff.voltage_l,cutoff.voltage_h)
 
 def log_check(log):
 	es = get_email()
@@ -255,7 +289,6 @@ def thresh_post():
 		return redirect(users.create_login_url('/setup'))
 	if code == 2:
 		return render_template('badlogin.html', url = users.create_logout_url('/setup'))
-	email_settings = get_email()
 
 	email_settings = get_email()
 	
@@ -317,6 +350,91 @@ def thresh_post():
 	
 	return redirect(url_for('thresh_setup'))
 	
+@app.route('/cutoff')
+def cut_setup():
+	code = check_auth()	
+	if code == 1:
+		return redirect(users.create_login_url('/cutoff'))
+	if code == 2:
+		return render_template('badlogin.html', url = users.create_logout_url('/cutoff'))
+	cut_settings = get_cut()
+	
+	return render_template('cutoffsetup.html', 
+				voltage_l = cut_settings.voltage_l, voltage_h = cut_settings.voltage_h,
+				humidity_l = cut_settings.humidity_l, humidity_h = cut_settings.humidity_h,
+				temperature_l = cut_settings.temperature_l, temperature_h = cut_settings.temperature_h,
+				current_l = cut_settings.current_l, current_h = cut_settings.current_h,
+				battery_voltage_l = cut_settings.battery_voltage_l, battery_voltage_h = cut_settings.battery_voltage_h,
+				frequency_l = cut_settings.frequency_l, frequency_h = cut_settings.frequency_h)
+
+@app.route('/cutoffsetup2', methods=['POST'])
+def cut_post():
+	code = check_auth()	
+	if code == 1:
+		return redirect(users.create_login_url('/cutoff'))
+	if code == 2:
+		return render_template('badlogin.html', url = users.create_logout_url('/cutoff'))
+
+	cut_settings = get_cut()
+	
+	try:
+		cut_settings.voltage_l = int(request.form['voltage_l'])
+	except ValueError:
+		pass
+	try:
+		cut_settings.voltage_h = int(request.form['voltage_h'])
+	except ValueError:
+		pass
+		
+	try:
+		cut_settings.temperature_l = int(request.form['temperature_l'])
+	except ValueError:
+		pass
+	try:
+		cut_settings.temperature_h = int(request.form['temperature_h'])
+	except ValueError:
+		pass
+
+	try:
+		cut_settings.humidity_l = int(request.form['humidity_l'])
+	except ValueError:
+		pass
+	try:
+		cut_settings.humidity_h = int(request.form['humidity_h'])
+	except ValueError:
+		pass
+
+	try:
+		cut_settings.current_l = int(request.form['current_l'])
+	except ValueError:
+		pass
+	try:
+		cut_settings.current_h = int(request.form['current_h'])
+	except ValueError:
+		pass
+
+	try:
+		cut_settings.battery_voltage_l = int(request.form['battery_voltage_l'])
+	except ValueError:
+		pass
+	try:
+		cut_settings.battery_voltage_h = int(request.form['battery_voltage_h'])
+	except ValueError:
+		pass
+
+	try:
+		cut_settings.frequency_l = int(request.form['frequency_l'])
+	except ValueError:
+		pass
+	try:
+		cut_settings.frequency_h = int(request.form['frequency_h'])
+	except ValueError:
+		pass		
+	
+	cut_settings.put()
+	
+	return redirect(url_for('cut_setup'))
+	
 def check_auth():
 	user = users.get_current_user()
 	
@@ -335,7 +453,7 @@ def cron():
 	previous_rank = 0
 	for log in query:
 		current_rank = log.temperature + log.humidity + log.voltage + log.current + log.battery_voltage + log.frequency
-		if abs(current_rank - previous_rank) > 1:
+		if abs(current_rank - previous_rank) > .5:
 			log.unique = True
 			log.put()
 			previous_rank = current_rank
