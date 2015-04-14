@@ -21,6 +21,7 @@ registered_users = ['supernova2468@gmail.com', 'callahanjake1986@gmail.com', 'ma
 class BB_Status(ndb.Model):
 	state = ndb.BooleanProperty(default=False)
 	command = ndb.BooleanProperty(default=False)
+	timezone = ndb.IntegerProperty(default=5)
 	
 def get_status():
 	status_key = ndb.Key(BB_Status, 'Beaglebone1')
@@ -114,16 +115,11 @@ def post():
 
 	# create entities
 	new_log = Log()
-	status_key = ndb.Key(BB_Status, 'Beaglebone1')
-	status = status_key.get()
-	
-	if not status:
-		status = BB_Status(key=status_key)
-		status.put()
+	status = get_status()
 	
 	# fill data
 	string_time = request.args.get('timestamp')
-	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time)) - datetime.timedelta(hours=5)
+	new_log.timestamp = datetime.datetime.fromtimestamp(float(string_time)) - datetime.timedelta(hours=status.timezone)
 	new_log.temperature = float(request.args.get('temperature'))
 	new_log.current = float(request.args.get('current'))
 	new_log.humidity = float(request.args.get('humidity'))
@@ -202,11 +198,7 @@ def control():
 	if code == 2:
 		return render_template('badlogin.html', url = users.create_logout_url('/control'))
 	
-	status_key = ndb.Key(BB_Status, 'Beaglebone1')
-	status = status_key.get()
-	if not status:
-		status = BB_Status(key=status_key)
-		status.put()
+	status = get_status()
 	
 	if status.state:
 		output = '<span class="label label-success">Outlet Powered On</span>' 
@@ -226,6 +218,10 @@ def control():
 		last_update = query.fetch(1)[0].timestamp
 	except IndexError:
 		last_update = 0
+        
+	# last_update = abs(last_update - datetime.datetime.now() + datetime.timedelta(hours=status.timezone))
+	if abs(last_update - datetime.datetime.now() + datetime.timedelta(hours=status.timezone)) > datetime.timedelta(minutes=1.1):
+		output = '<span class="label label-default">Device Offline</span>'
 	
 	if status.command:
 		button = 'class="label label-success">Startup Requested'
