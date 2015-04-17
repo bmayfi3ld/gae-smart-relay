@@ -55,28 +55,48 @@
       </div>
 
     </div><!-- /.container -->
-    <div class="container" id="dashboard>
-			<div class="row">
-				<div id="controls"></div>
-				<div class="col-md-6" id="chart0"></div>
-				<div class="col-md-6" id="chart1"></div>
-				<div class="col-md-6" id="chart2"></div>
-				<div class="col-md-6" id="chart3"></div>
-				<div class="col-md-6" id="chart4"></div>
-				<div class="col-md-6" id="chart5"></div>
-				<div class="col-md-6" id="chart5"></div>
-			</div>
+	<div class="container">
+		<div id="dashboard0" class="well">
+			<div class="myChart" id="chart0"></div>
+			<div class="myControl" id="control0"></div>
 		</div>
+		
+		<div id="dashboard1" class="well">
+			<div class="myChart" id="chart1"></div>
+			<div class="myControl" id="control1"></div>
+		</div>
+		
+		<div id="dashboard2" class="well">
+			<div class="myChart" id="chart2"></div>
+			<div class="myControl" id="control2"></div>
+		</div>
+		
+		<div id="dashboard3" class="well">
+			<div class="myChart" id="chart3"></div>
+			<div class="myControl" id="control3"></div>
+		</div>
+		
+		<div id="dashboard4" class="well">
+			<div class="myChart" id="chart4"></div>
+			<div class="myControl" id="control4"></div>
+		</div>
+		
+		<div id="dashboard5" class="well">
+			<div class="myChart" id="chart5"></div>
+			<div class="myControl" id="control5"></div>
+		</div>
+
+	</div>	
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-		<script src="js/index.js"></script>
-		<script type="text/javascript">
-			google.setOnLoadCallback(drawChart({{data_table|safe}}));
-		</script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="js/index.js"></script>
+	<script type="text/javascript">
+		google.setOnLoadCallback(drawChart({{data_table|safe}}));
+	</script>
   </body>
 </html>

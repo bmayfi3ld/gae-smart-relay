@@ -5,26 +5,11 @@ body {
   padding: 40px 15px;
   text-align: center;
 }
-#gauge_div {
-	margin-left: auto;
-	margin-right: auto;
-	width: 50%;
-}
-.well {
-	height: 250px;
-	text-align: center;
-	vertical-align: middle;
+
+.myChart {
+	height: 350px;
 }
 
-.labels {
-	padding-top: 10%;
-}
-
-.form-inline {
-	padding-bottom: 10px;
-}
-
-form {
-	text-align: right;
-	padding-right: 25%;
+.myControl {
+	height: 50px;
 }

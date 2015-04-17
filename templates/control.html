@@ -13,7 +13,7 @@
 	<!-- Bootstrap core CSS -->
   <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	
-	<link href="css/index.css" rel="stylesheet">
+	<link href="css/control.css" rel="stylesheet">
 	
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -91,10 +91,11 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-		<script type="text/javascript">
-			google.setOnLoadCallback(drawGauge({{ uptime|safe }}));
-		</script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="js/control.js"></script>
+	<script type="text/javascript">
+		drawGauge({{ uptime|safe }});
+	</script>
 
   </body>
 </html>

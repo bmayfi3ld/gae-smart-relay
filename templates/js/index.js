@@ -1,22 +1,9 @@
 google.load('visualization', '1', { packages : ['controls'] } );
-google.load('visualization', '1.1', {packages: ['line']});
-google.load("visualization", "1", {packages:["gauge"]});
-
 
 function drawChart(arrayIN) {
-	var dash_container = document.getElementById('dashboard'),
-	myDashboard = new google.visualization.Dashboard(dash_container);
-	
-	var myDateSlider = new google.visualization.ControlWrapper({
-		'controlType': 'ChartRangeFilter',
-		'containerId': 'controls',
-		'options': {
-			'filterColumnLabel': 'Time'
-		}
-	});
-	
+		
+	// create data
 	var dataArr = [];
-	// create all graphs
 	for(var i = 0; i < arrayIN[0].length-1; i++) 
 	{
 		dataArr[i] = new google.visualization.DataTable();
@@ -44,36 +31,30 @@ function drawChart(arrayIN) {
 			dataArr[i].addRow([arrayIN[j][0],arrayIN[j][i+1]])
 		}
 	}
-  // add all charts
+	
+	// add all charts arrayIN[0].length-1
 	for(var i = 0; i < arrayIN[0].length-1; i++) {
-		var options = {
-			chart: {
-				 title: arrayIN[0][i+1]
-			},      
-			//width: 100,
-			//width: document.getElementById('chart' + i).offsetWidth,
-			height: 350,
-			legend: {position: 'none'},                    
-		}
-		var chart = new google.charts.Line(document.getElementById('chart' + i));
-		chart.draw(dataArr[i], options);
+		
+		var dash_container = document.getElementById('dashboard' + i),
+		myDashboard = new google.visualization.Dashboard(dash_container);
+	
+		var myDateSlider = new google.visualization.ControlWrapper({
+			'controlType': 'ChartRangeFilter',
+			'containerId': 'control' + i,
+			'options': {
+				'filterColumnLabel': 'Time'
+			}
+		});
+		
+		var chart = new google.visualization.ChartWrapper({
+			'chartType': 'LineChart',
+			'containerId': 'chart' + i,
+		});
+		
+		myDashboard.bind(myDateSlider, chart)
+		
+		//var chart = new google.charts.Line(document.getElementById('chart' + i));
+		myDashboard.draw(dataArr[i]);
 	}
 }
-	
-function drawGauge(uptime) {
-        var data = google.visualization.arrayToDataTable([
-          ['Label', 'Value'],
-          ['', 5],
-        ]);
-
-        var options = {
-          redFrom: 0, redTo: 10,
-          yellowFrom:10, yellowTo: 25,
-          minorTicks: 5
-        };
-
-        var chart = new google.visualization.Gauge(document.getElementById('gauge'));
-
-        chart.draw(data, options);
-      }
 	
