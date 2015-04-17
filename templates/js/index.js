@@ -50,10 +50,9 @@ function drawChart(arrayIN) {
 }
 	
 function drawGauge(uptime) {
-
         var data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
-          ['', uptime],
+          ['', 5],
         ]);
 
         var options = {

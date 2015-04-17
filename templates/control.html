@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<meta http-equiv="refresh" content="60" >
 	
 	<link rel="icon" href="favicon.ico">
 	<title>Relay Control</title>
@@ -75,7 +76,7 @@
 				<div class="col-md-4">
 					<div class="well">
 						<h4>Current Signal</h4>
-						<h3 class="labels"><a href="/control2"{{ button|safe }}</a></h3>
+						<h3 class="labels" id="submit_button"><a href="/control2"{{ button|safe }}</a></h3>
 						<p>The command that this app is currently sending to the device. Click to change.</p>
 					</div>
 				</div>
@@ -91,7 +92,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-		<script src="js/index.js"></script>
 		<script type="text/javascript">
 			google.setOnLoadCallback(drawGauge({{ uptime|safe }}));
 		</script>
