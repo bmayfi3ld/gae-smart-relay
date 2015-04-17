@@ -450,7 +450,7 @@ def cron():
 	previous_rank = 0
 	for log in query:
 		current_rank = log.temperature + log.humidity + log.voltage + log.current + log.battery_voltage + log.frequency
-		if abs(current_rank - previous_rank) > 1.5:
+		if abs(current_rank - previous_rank) > 2:
 			log.unique = True
 			log.put()
 			previous_rank = current_rank
