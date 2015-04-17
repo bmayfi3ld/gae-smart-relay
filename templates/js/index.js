@@ -1,9 +1,20 @@
+google.load('visualization', '1', { packages : ['controls'] } );
 google.load('visualization', '1.1', {packages: ['line']});
 google.load("visualization", "1", {packages:["gauge"]});
 
 
 function drawChart(arrayIN) {
-
+	var dash_container = document.getElementById('dashboard'),
+	myDashboard = new google.visualization.Dashboard(dash_container);
+	
+	var myDateSlider = new google.visualization.ControlWrapper({
+		'controlType': 'ChartRangeFilter',
+		'containerId': 'controls',
+		'options': {
+			'filterColumnLabel': 'Time'
+		}
+	});
+	
 	var dataArr = [];
 	// create all graphs
 	for(var i = 0; i < arrayIN[0].length-1; i++) 
