@@ -3,7 +3,7 @@ google.load("visualization", "1", {packages:["gauge"]});
 function drawGauge(uptime) {
         var data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
-          ['', 5],
+          ['', uptime],
         ]);
 
         var options = {

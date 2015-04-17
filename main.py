@@ -102,7 +102,7 @@ def reroute():
 def data():
 	logs = Log.query(Log.unique == True).order(Log.timestamp)
 	
-	data_table = [['Time','Temperature (F)','Humidity (%)','Voltage (V)','Current (A)','Battery Voltage (V)','Frequency (Hz)']]
+	data_table = [['Time','(*F)','(%)','(V)','(A)','(V)','(Hz)']]
 	
 	for log in logs:
 		data_table.append([log.timestamp.ctime(), log.temperature, log.humidity, log.voltage, log.current, log.battery_voltage, log.frequency])
@@ -216,7 +216,6 @@ def control():
 	uptime = (uptime * 100) / 1440
 	try:
 		last_update = query.fetch(1)[0].timestamp
-		# last_update = abs(last_update - datetime.datetime.now() + datetime.timedelta(hours=status.timezone))
 		if abs(last_update - datetime.datetime.now() + datetime.timedelta(hours=status.timezone)) > datetime.timedelta(minutes=1.1):
 			output = '<span class="label label-default">Device Offline</span>'
 	except IndexError:
