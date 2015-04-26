@@ -102,10 +102,17 @@ def reroute():
 def data():
 	logs = Log.query(Log.unique == True).order(Log.timestamp)
 	
-	data_table = [['Time','(*F)','(%)','(V)','(A)','(V)','(Hz)']]
+	data_table = [['Time','(*F)','(%)','(V)','(A)','(V)','(Hz)','(W)']]
 	
 	for log in logs:
-		data_table.append([log.timestamp.ctime(), log.temperature, log.humidity, log.voltage, log.current, log.battery_voltage, log.frequency])
+		data_table.append([log.timestamp.ctime(), 
+								log.temperature, 
+								log.humidity, 
+								log.voltage, 
+								log.current, 
+								log.battery_voltage, 
+								log.frequency,
+								round(log.voltage * log.current,1)])
 
 		
 	return render_template('index.html', data_table = data_table)
